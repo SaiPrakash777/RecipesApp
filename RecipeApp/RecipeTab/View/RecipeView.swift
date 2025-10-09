@@ -17,7 +17,7 @@ struct MainTabView: View {
                     Label(GeneralConstants.recipe.rawValue, systemImage: ImageIcons.forkAndKnifeIcon.rawValue)
                 }
             
-            FavoritesView()
+            FavouritesView(name: "", cookTime: 0, servings: 0, rating: 0.0, cuisine: "", difficulty: "", imageURL: "", isFavorite: false, onFavTap: {print("Tapped ")})
                 .tabItem {
                     Label(GeneralConstants.fav.rawValue, systemImage: ImageIcons.heartIcon.rawValue)
                 }
@@ -35,7 +35,7 @@ struct RecipesView<VM :RecipesVM>: View {
     @State private var searchText = ""
     @State private var selectedSortOption: SortingOptions? = nil
     @State private var selectedFilter: FilterOptions? = .all
-    
+    @State var recipesCoreDataInstance = [RecipesEntity]()
     
     var body: some View {
         NavigationView {
@@ -66,6 +66,7 @@ struct RecipesView<VM :RecipesVM>: View {
                         }
                     }
                     .padding(.horizontal)
+                    .padding(.bottom,5)
                 }
                 //LIST VIEW
                 recipesContent()
@@ -74,44 +75,14 @@ struct RecipesView<VM :RecipesVM>: View {
             .navigationBarTitleDisplayMode(.inline)
             //NAVBARITEMS
             .navigationBarItems(trailing: navBarItem())
+            .onAppear(perform: {
+                recipesCoreDataInstance = DBManager.sharedInstance.fetchRecipesData()
+                print("recipesCoreDataInstance ==>",recipesCoreDataInstance)
+            })
             .task {
                 await recipesVM.fetchRecipesData()
             }
             
-        }
-    }
-}
-
-// MARK: - Favorites Screen
-struct FavoritesView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Image(systemName: ImageIcons.heartFillIcon.rawValue)
-                    .font(.system(size: 60))
-                    .foregroundColor(.pink)
-                Text("Your favorite recipes will appear here!")
-                    .font(.headline)
-                    .padding(.top)
-            }
-            .navigationTitle("Favorites")
-        }
-    }
-}
-
-// MARK: - Shopping Screen
-struct ShoppingView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Image(systemName: ImageIcons.cartFillIcon.rawValue)
-                    .font(.system(size: 60))
-                    .foregroundColor(.green)
-                Text("Your shopping list is empty.")
-                    .font(.headline)
-                    .padding(.top)
-            }
-            .navigationTitle("Shopping")
         }
     }
 }
@@ -145,9 +116,9 @@ extension RecipesView {
             }
         }
         //If filtered array is empty, try fetching again
-            if result.isEmpty && !recipesVM.hasRecipes {
-                Task { await recipesVM.fetchRecipesData() }
-            }
+        if result.isEmpty && !recipesVM.hasRecipes {
+            Task { await recipesVM.fetchRecipesData() }
+        }
         return result
     }
 }
@@ -157,10 +128,18 @@ extension RecipesView {
         let filteredRecipes = getFilteredAndSortedRecipes()
         
         if recipesVM.isSuccess {
-            List(filteredRecipes, id: \.id) { recipe in
-                recipeRows(recipe)
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: 10) {
+                    ForEach(filteredRecipes, id: \.id) { recipe in
+                        NavigationLink(destination: RecipeDetailsView(recipeName: recipe.name ?? "")) {
+                            recipeRows(recipe)
+                        }
+                        .buttonStyle(.plain) // ensures heart button works separately
+                        Divider()
+                    }
+                }
+                .padding(.horizontal)
             }
-            .listStyle(PlainListStyle())
         } else if let error = recipesVM.errorMessage {
             Spacer()
             Text(error)
@@ -191,11 +170,7 @@ extension RecipesView {
                     Text(recipe.name ?? "Unknown")
                         .font(.headline)
                     Spacer()
-                    Button(action: {
-                        print("added to fav")
-                    }) {
-                        Image(systemName: ImageIcons.heartIcon.rawValue)
-                    }
+                    setupFavBtn(recipe: recipe)
                 }
                 
                 HStack(spacing: 8) {
@@ -259,6 +234,38 @@ extension RecipesView{
         } label: {
             Image(systemName: ImageIcons.arrowsIcon.rawValue)
                 .foregroundColor(selectedSortOption == nil ? .green : .green)
+        }
+    }
+    func setupFavBtn(recipe: Recipes) -> some View{
+        // Check if this recipe is already in CoreData
+        let isFavorited = recipesCoreDataInstance.contains { $0.recipeId == recipe.id ?? 0}
+        return Button(action: {
+            if !isFavorited {
+                // Add to CoreData
+                DBManager.sharedInstance.createRecipeRecord(record: recipe)
+                // Refresh local CoreData cache
+                recipesCoreDataInstance = DBManager.sharedInstance.fetchRecipesData()
+            }
+        }) {
+            Image(systemName: isFavorited ? ImageIcons.heartFillIcon.rawValue : ImageIcons.heartIcon.rawValue)
+                .foregroundColor(isFavorited ? .red : .black)
+        }
+        .buttonStyle(.plain)
+    }
+}
+// MARK: - Shopping Screen
+struct ShoppingView: View {
+    var body: some View {
+        NavigationView {
+            VStack {
+                Image(systemName: ImageIcons.cartFillIcon.rawValue)
+                    .font(.system(size: 60))
+                    .foregroundColor(.green)
+                Text("Your shopping list is empty.")
+                    .font(.headline)
+                    .padding(.top)
+            }
+            .navigationTitle("Shopping")
         }
     }
 }
