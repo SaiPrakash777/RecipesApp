@@ -41,7 +41,11 @@ class RecipesVM: RecipesVMProtocol {
         }
     }
 }
-
+extension RecipesVM {
+    var hasRecipes: Bool {
+        return !recipes.isEmpty
+    }
+}
 
 
 

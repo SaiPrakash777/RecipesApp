@@ -29,13 +29,11 @@ final class NetworkClass: NetworkServiceProtocol {
     ) async -> (Bool, T?, Error?) {
         
         guard monitor.isConnected else {
-            print("No Internet Connection")
-            return (false, nil, URLError(.notConnectedToInternet))
+            return (false, nil, NetworkErrors.noInternet)
         }
         
         guard let url = URL(string: urlPath) else {
-            print("Invalid URL")
-            return (false, nil, URLError(.badURL))
+            return (false, nil, NetworkErrors.invalidURL)
         }
         
         var urlRequest = URLRequest(url: url)
@@ -50,16 +48,14 @@ final class NetworkClass: NetworkServiceProtocol {
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                print("Server returned status: \(httpResponse.statusCode)")
-                return (false, nil, URLError(.badServerResponse))
+                return (false, nil, NetworkErrors.badResponse(statusCode: httpResponse.statusCode))
             }
             
             let decoded = try JSONDecoder().decode(responseModel, from: data)
             return (true, decoded, nil)
             
         } catch {
-            print("Network or Decoding Error: \(error.localizedDescription)")
-            return (false, nil, error)
+            return (false, nil, NetworkErrors.decodingFailed)
         }
     }
 }

@@ -95,3 +95,31 @@ enum ImageIcons: String{
     case starIcon = "star.fill"
     case arrowsIcon =  "arrow.up.arrow.down.circle.fill"
 }
+
+enum NetworkErrors: LocalizedError {
+    case noInternet
+    case invalidURL
+    case badResponse(statusCode: Int)
+    case decodingFailed
+    case unknown(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .noInternet:
+            return "No internet connection, Please check your network."
+        case .invalidURL:
+            return "Invalid URL"
+        case .badResponse(let statusCode):
+            return "Server returned an invalid response (\(statusCode))."
+        case .decodingFailed:
+            return "Failed to decode the response."
+        case .unknown(let error):
+            return error.localizedDescription
+        }
+    }
+}
+enum GeneralConstants: String{
+    case recipe = "Recipes"
+    case fav = "Favorites"
+    case shopping = "Shopping"
+}
