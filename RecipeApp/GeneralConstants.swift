@@ -16,7 +16,7 @@ enum SortingOptions: String, CaseIterable {
 }
 enum FilterOptions: String,CaseIterable{
     case all = "All"
-    case vegan = "Vegan"
+    case vegan = "Vegetarian"
     case chicken = "Chicken"
     case salad = "Salad"
 }

@@ -64,7 +64,7 @@ struct FavouritesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: {
                 recipesCoreDataInstance = DBManager.sharedInstance.fetchRecipesData()
-                print("recipesCoreDataInstance ==>",recipesCoreDataInstance)
+//                print("recipesCoreDataInstance ==>",recipesCoreDataInstance)
             })
         }
     }

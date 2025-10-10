@@ -8,10 +8,16 @@
 import Foundation
 
 struct RecipesDM : Codable {
-    let recipes : [Recipes]?
+    let recipes : [Recipes]
     let total : Int?
     let skip : Int?
     let limit : Int?
+    init(recipes: [Recipes], total: Int?, skip: Int?, limit: Int?) {
+        self.recipes = recipes
+        self.total = total
+        self.skip = skip
+        self.limit = limit
+    }
 }
 struct Recipes : Codable {
     let id : Int?

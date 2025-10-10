@@ -15,14 +15,20 @@ struct RecipeDetailsView<VM: RecipesDetailsVM>: View {
     @State private var hasLoaded = false
     var body: some View {
         ZStack {
-            if recipesDetailsVM.isSuccess && !recipesDetailsVM.recipes.isEmpty {
-                detailsView()
+            if recipesDetailsVM.isSuccess {
+                if recipesDetailsVM.recipes.count > 0{
+                    detailsView()
+                }else{
+                    VStack{
+                        Text("no recipe details found")
+                    }
+                }
             } else if recipesDetailsVM.errorMessage != nil {
                 Text(recipesDetailsVM.errorMessage ?? "error")
                     .foregroundColor(.red)
             } else {
                 VStack{
-                    Text("No Recipe Details Available")
+                    Text("Fetching recipe details...")
                 }
             }
         }
