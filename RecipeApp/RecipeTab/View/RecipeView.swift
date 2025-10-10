@@ -131,7 +131,7 @@ extension RecipesView {
                 Divider()
                 LazyVStack(spacing: 10) {
                     ForEach(filteredRecipes, id: \.id) { recipe in
-                        NavigationLink(destination: RecipeDetailsView(recipeName: recipe.name ?? "")) {
+                        NavigationLink(destination: RecipeDetailsView(recipesDetailsVM: RecipesDetailsVM(networkService: NetworkClass()), recipeName: recipe.name ?? "")) {
                             ListView(
                                 name: recipe.name ?? "",
                                 cookTime: recipe.cookTimeMinutes ?? 0,

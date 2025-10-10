@@ -161,25 +161,21 @@ struct ListView: View {
 #Preview {
     ListView(name: "Recipe name", cookTime: 40, servings: 5, rating: 4.0, cuisine: "Indian", difficulty: "Meduim", imageURL: "", isFavorite: .constant(false), onFavTap: {print("Tapped ")})
 }
-enum NetworkErrors: LocalizedError {
-    case noInternet
-    case invalidURL
-    case badResponse(statusCode: Int)
-    case decodingFailed
-    case unknown(Error)
-    
-    var errorDescription: String? {
-        switch self {
-        case .noInternet:
-            return "No internet connection, Please check your network."
-        case .invalidURL:
-            return "Invalid URL"
-        case .badResponse(let statusCode):
-            return "Server returned an invalid response (\(statusCode))."
-        case .decodingFailed:
-            return "Failed to decode the response."
-        case .unknown(let error):
-            return error.localizedDescription
-        }
+class ImageLoader: ObservableObject {
+    @Published var image: UIImage?
+    func loadImage(fromUrl: String?, placeholderImage: String) {
+        self.image = UIImage(named: placeholderImage)
+        
+        guard let urlString = fromUrl, let url = URL(string: urlString) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self else { return }
+            if let data = data, error == nil, let downloadedImage = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.image = downloadedImage
+                }
+            }
+        }.resume()
     }
 }
+

@@ -20,6 +20,7 @@ final class NetworkClass: NetworkServiceProtocol {
     
     //URLS
     static let recipeUrl = "https://dummyjson.com/recipes"
+    static let recipeDetailsUrl = "https://dummyjson.com/recipes/search?q="
     
     private let monitor = NetworkMonitor.shared
     

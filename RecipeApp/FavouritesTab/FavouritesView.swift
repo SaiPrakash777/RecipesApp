@@ -18,7 +18,7 @@ struct FavouritesView: View {
                         Divider()
                         LazyVStack(spacing: 10) {
                             ForEach(recipesCoreDataInstance, id: \.self) { recipe in
-                                NavigationLink(destination: RecipeDetailsView(recipeName: recipe.recipeName ?? "")) {
+                                NavigationLink(destination: RecipeDetailsView(recipesDetailsVM: RecipesDetailsVM(networkService: NetworkClass()), recipeName: recipe.recipeName ?? "")) {
                                     ListView(
                                         name: recipe.recipeName ?? "",
                                         cookTime: Int(recipe.cookTimeMinutes),

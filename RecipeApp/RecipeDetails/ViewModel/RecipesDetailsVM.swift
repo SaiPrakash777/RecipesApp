@@ -1,21 +1,13 @@
 //
-//  RecipesVM.swift
+//  RecipesDetailsVM.swift
 //  RecipeApp
 //
-//  Created by SaiPrakash Cheera on 09/10/25.
+//  Created by SaiPrakash Cheera on 10/10/25.
 //
 
 import Foundation
-protocol RecipesVMProtocol: ObservableObject{
-    var recipes: [Recipes] { get set }
-    var isSuccess: Bool { get set }
-    var errorMessage: String? { get set }
-}
-extension RecipesVMProtocol{
-    func fetchRecipesData() async{}
-    func fetchRecipesDataWithUrlEndPoint(urlEndPoint: String) async{}
-}
-class RecipesVM: RecipesVMProtocol {
+
+class RecipesDetailsVM: RecipesVMProtocol {
     
     @Published var recipes: [Recipes] = []
     @Published var isSuccess: Bool = false
@@ -26,10 +18,10 @@ class RecipesVM: RecipesVMProtocol {
         self.networkService = networkService
     }
 
-    func fetchRecipesData() async {
+    func fetchRecipesDataWithUrlEndPoint(urlEndPoint: String) async {
         let (success, response, error) = await networkService.getServerRequest(
-            urlPath: NetworkClass.recipeUrl,
-            responseModel: RecipesDM.self
+            urlPath: NetworkClass.recipeDetailsUrl + urlEndPoint,
+            responseModel: RecipesDetailsDM.self
         )
         DispatchQueue.main.async {
             if success, let data = response {
@@ -44,11 +36,3 @@ class RecipesVM: RecipesVMProtocol {
         }
     }
 }
-extension RecipesVM {
-    var hasRecipes: Bool {
-        return !recipes.isEmpty
-    }
-}
-
-
-
