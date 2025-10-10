@@ -54,6 +54,23 @@ class DBManager{
         recipes.ratings = record.rating ?? 0
         recipes.cuisine = record.cuisine
         recipes.recipeId = Int32(record.id ?? 0)
+        recipes.difficultyStatus = record.difficulty
         DBManager.sharedInstance.saveContext()
     }
+    func deleteRecipeRecord(recipeId: Int) {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: RecipesEntity.description())
+        fetchRequest.predicate = NSPredicate(format: "recipeId == %d", recipeId)
+        
+        do {
+            let records = try persistentContainer.viewContext.fetch(fetchRequest)
+            if let recordToDelete = records.first {
+                persistentContainer.viewContext.delete(recordToDelete as! NSManagedObject)
+                try persistentContainer.viewContext.save()
+                print("Recipe deleted with id: \(recipeId)")
+            }
+        } catch {
+            print("Failed to delete recipe: \(error.localizedDescription)")
+        }
+    }
+
 }

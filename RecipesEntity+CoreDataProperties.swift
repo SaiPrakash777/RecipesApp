@@ -23,5 +23,6 @@ extension RecipesEntity {
     @NSManaged public var recipeName: String?
     @NSManaged public var servings: Int32
     @NSManaged public var recipeId: Int32
+    @NSManaged public var difficultyStatus: String?
 
 }

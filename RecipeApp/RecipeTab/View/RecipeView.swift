@@ -17,7 +17,7 @@ struct MainTabView: View {
                     Label(GeneralConstants.recipe.rawValue, systemImage: ImageIcons.forkAndKnifeIcon.rawValue)
                 }
             
-            FavouritesView(name: "", cookTime: 0, servings: 0, rating: 0.0, cuisine: "", difficulty: "", imageURL: "", isFavorite: false, onFavTap: {print("Tapped ")})
+            FavouritesView()
                 .tabItem {
                     Label(GeneralConstants.fav.rawValue, systemImage: ImageIcons.heartIcon.rawValue)
                 }
@@ -27,7 +27,7 @@ struct MainTabView: View {
                     Label(GeneralConstants.shopping.rawValue, systemImage: ImageIcons.cartIcon.rawValue)
                 }
         }
-        .accentColor(.green) // active tab color
+        .accentColor(.green)
     }
 }
 struct RecipesView<VM :RecipesVM>: View {
@@ -71,7 +71,7 @@ struct RecipesView<VM :RecipesVM>: View {
                 //LIST VIEW
                 recipesContent()
             }
-            .navigationTitle("Recipes")
+            .navigationTitle(GeneralConstants.recipe.rawValue)
             .navigationBarTitleDisplayMode(.inline)
             //NAVBARITEMS
             .navigationBarItems(trailing: navBarItem())
@@ -126,21 +126,41 @@ extension RecipesView {
     @ViewBuilder
     func recipesContent() -> some View {
         let filteredRecipes = getFilteredAndSortedRecipes()
-        
         if recipesVM.isSuccess {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
+                Divider()
                 LazyVStack(spacing: 10) {
                     ForEach(filteredRecipes, id: \.id) { recipe in
                         NavigationLink(destination: RecipeDetailsView(recipeName: recipe.name ?? "")) {
-                            recipeRows(recipe)
+                            ListView(
+                                name: recipe.name ?? "",
+                                cookTime: recipe.cookTimeMinutes ?? 0,
+                                servings: recipe.servings ?? 0,
+                                rating: recipe.rating ?? 0.0,
+                                cuisine: recipe.cuisine ?? "",
+                                difficulty: recipe.difficulty ?? "",
+                                imageURL: recipe.image ?? "",
+                                isFavorite: Binding(
+                                    get: { recipesCoreDataInstance.contains { $0.recipeId == recipe.id ?? 0 } },
+                                    set: { _ in }
+                                ),
+                                    onFavTap: {
+                                        if recipesCoreDataInstance.contains(where: { $0.recipeId == recipe.id ?? 0 }) {
+                                            DBManager.sharedInstance.deleteRecipeRecord(recipeId: recipe.id ?? 0)
+                                        } else {
+                                            DBManager.sharedInstance.createRecipeRecord(record: recipe)
+                                        }
+                                        recipesCoreDataInstance = DBManager.sharedInstance.fetchRecipesData()
+                                    }
+                            )
                         }
-                        .buttonStyle(.plain) // ensures heart button works separately
+                        .buttonStyle(.plain)
                         Divider()
                     }
                 }
                 .padding(.horizontal)
             }
-        } else if let error = recipesVM.errorMessage {
+        }else if let error = recipesVM.errorMessage {
             Spacer()
             Text(error)
                 .foregroundColor(.red)
@@ -153,73 +173,6 @@ extension RecipesView {
                 .foregroundColor(.gray)
             Spacer()
         }
-    }
-    
-    @ViewBuilder
-    func recipeRows(_ recipe: Recipes) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            CachedImageView(
-                urlString: recipe.image,
-                placeholder: "photo",
-                width: 60,
-                height: 60,
-                cornerRadius: 8
-            )
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(recipe.name ?? "Unknown")
-                        .font(.headline)
-                    Spacer()
-                    setupFavBtn(recipe: recipe)
-                }
-                
-                HStack(spacing: 8) {
-                    HStack(spacing: 3) {
-                        Image(systemName: ImageIcons.clockIcon.rawValue)
-                            .foregroundColor(.gray)
-                        Text("\(recipe.cookTimeMinutes ?? 0) min")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                    Text("•")
-                    HStack(spacing: 3) {
-                        Image(systemName: ImageIcons.forkAndKnifeIcon.rawValue)
-                            .foregroundColor(.gray)
-                        Text("\(recipe.servings ?? 0) servings")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                }
-                .font(.caption)
-                .foregroundColor(.gray)
-                
-                HStack(spacing: 8) {
-                    HStack(spacing: 2) {
-                        Image(systemName: ImageIcons.starIcon.rawValue)
-                            .foregroundColor(.orange)
-                        Text(String(format: "%.1f", recipe.rating ?? 0.0))
-                            .font(.subheadline)
-                    }
-                    
-                    Text(recipe.cuisine ?? "")
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.15))
-                        .cornerRadius(6)
-                    
-                    if let difficulty = recipe.difficulty {
-                        Text(difficulty)
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.blue.opacity(0.15))
-                            .cornerRadius(6)
-                    }
-                }
-            }
-        }
-        .padding(.vertical, 6)
     }
 }
 extension RecipesView{
@@ -235,22 +188,6 @@ extension RecipesView{
             Image(systemName: ImageIcons.arrowsIcon.rawValue)
                 .foregroundColor(selectedSortOption == nil ? .green : .green)
         }
-    }
-    func setupFavBtn(recipe: Recipes) -> some View{
-        // Check if this recipe is already in CoreData
-        let isFavorited = recipesCoreDataInstance.contains { $0.recipeId == recipe.id ?? 0}
-        return Button(action: {
-            if !isFavorited {
-                // Add to CoreData
-                DBManager.sharedInstance.createRecipeRecord(record: recipe)
-                // Refresh local CoreData cache
-                recipesCoreDataInstance = DBManager.sharedInstance.fetchRecipesData()
-            }
-        }) {
-            Image(systemName: isFavorited ? ImageIcons.heartFillIcon.rawValue : ImageIcons.heartIcon.rawValue)
-                .foregroundColor(isFavorited ? .red : .black)
-        }
-        .buttonStyle(.plain)
     }
 }
 // MARK: - Shopping Screen

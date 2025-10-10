@@ -43,11 +43,11 @@ struct CachedImageView: View {
             }
         }
         .onAppear {
-            loadImage(from: urlString)
+            urlCacheloadImage(from: urlString)
         }
     }
     
-    private func loadImage(from urlString: String?) {
+    private func urlCacheloadImage(from urlString: String?) {
         guard let urlString = urlString, let url = URL(string: urlString) else { return }
         let request = URLRequest(url: url)
         // Checks URLCache first
@@ -72,30 +72,95 @@ struct CachedImageView: View {
         }.resume()
     }
 }
-enum SortingOptions: String, CaseIterable {
-    case name = "Name"
-    case cookingTime = "Cooking Time"
-    case rating = "Rating"
-    case difficulty = "Difficulty"
-}
-enum FilterOptions: String,CaseIterable{
-    case all = "All"
-    case vegan = "Vegan"
-    case chicken = "Chicken"
-    case salad = "Salad"
-}
-enum ImageIcons: String{
-    case forkAndKnifeIcon = "fork.knife.circle.fill"
-    case heartIcon = "heart"
-    case heartFillIcon = "heart.fill"
-    case cartIcon = "cart"
-    case cartFillIcon = "cart.fill"
-    case magnifyingGlassIcon = "magnifyingglass"
-    case clockIcon = "clock"
-    case starIcon = "star.fill"
-    case arrowsIcon =  "arrow.up.arrow.down.circle.fill"
+struct ListView: View {
+    let name: String
+    let cookTime: Int
+    let servings: Int
+    let rating: Double
+    let cuisine: String
+    let difficulty: String?
+    let imageURL: String?
+    @Binding var isFavorite: Bool
+    let onFavTap: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            CachedImageView(
+                urlString: imageURL,
+                placeholder: "photo",
+                width: 60,
+                height: 60,
+                cornerRadius: 8
+            )
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(name)
+                        .font(.headline)
+                    Spacer()
+                    Button(action: {
+                        onFavTap()
+                        isFavorite.toggle()
+                    }) {
+                        Image(systemName: isFavorite ? ImageIcons.heartFillIcon.rawValue : ImageIcons.heartIcon.rawValue)
+                            .foregroundColor(isFavorite ? .red : .black)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                HStack(spacing: 8) {
+                    HStack(spacing: 3) {
+                        Image(systemName: ImageIcons.clockIcon.rawValue)
+                            .foregroundColor(.gray)
+                        Text("\(cookTime) min")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+
+                    Text("•")
+                    HStack(spacing: 3) {
+                        Image(systemName: ImageIcons.forkAndKnifeIcon.rawValue)
+                            .foregroundColor(.gray)
+                        Text("\(servings) servings")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.gray)
+                
+                HStack(spacing: 8) {
+                    HStack(spacing: 2) {
+                        Image(systemName: ImageIcons.starIcon.rawValue)
+                            .foregroundColor(.orange)
+                        Text(String(format: "%.1f", rating))
+                            .font(.subheadline)
+                    }
+
+                    Text(cuisine)
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.15))
+                        .cornerRadius(6)
+
+                    if let difficulty {
+                        Text(difficulty)
+                            .font(.caption2)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.blue.opacity(0.15))
+                            .cornerRadius(6)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 6)
+    }
 }
 
+#Preview {
+    ListView(name: "Recipe name", cookTime: 40, servings: 5, rating: 4.0, cuisine: "Indian", difficulty: "Meduim", imageURL: "", isFavorite: .constant(false), onFavTap: {print("Tapped ")})
+}
 enum NetworkErrors: LocalizedError {
     case noInternet
     case invalidURL
@@ -117,9 +182,4 @@ enum NetworkErrors: LocalizedError {
             return error.localizedDescription
         }
     }
-}
-enum GeneralConstants: String{
-    case recipe = "Recipes"
-    case fav = "Favorites"
-    case shopping = "Shopping"
 }
