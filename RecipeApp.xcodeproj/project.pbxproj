@@ -183,6 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				53B614042E97B37100B7D68A /* RecipeApp */,
+				53E291E42E995C5900ADCA0C /* RecipeAppTests */,
 				53B614032E97B37100B7D68A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -209,7 +210,6 @@
 				53E291D92E993F2D00ADCA0C /* ShoppingTab */,
 				536F30C12E98E2970045836C /* Utilities */,
 				5361EE192E98351500469BA1 /* RecipesCoreDataModel */,
-				53E291E42E995C5900ADCA0C /* RecipeAppTests */,
 			);
 			path = RecipeApp;
 			sourceTree = "<group>";
