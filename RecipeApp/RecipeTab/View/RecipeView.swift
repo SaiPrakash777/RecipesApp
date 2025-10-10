@@ -93,7 +93,9 @@ struct RecipesView<VM :RecipesVM>: View {
 extension RecipesView {
     func getFilteredAndSortedRecipes() -> [Recipes] {
         var result = recipesVM.recipes.filter { recipe in
-            let searchedText = searchText.isEmpty || (recipe.name?.localizedCaseInsensitiveContains(searchText) ?? false)
+            let searchedText = searchText.isEmpty 
+            || (recipe.name?.localizedCaseInsensitiveContains(searchText) ?? false) 
+            || (recipe.ingredients?.contains(where: { $0.localizedCaseInsensitiveContains(searchText) }) ?? false)
             let filteredText = selectedFilter == .all || (recipe.tags?.contains(where: { $0.lowercased() == selectedFilter?.rawValue.lowercased() }) ?? false)
             return searchedText && filteredText
         }
@@ -112,6 +114,10 @@ extension RecipesView {
                     let first = difficultyOrder[$0.difficulty ?? ""] ?? 3
                     let second = difficultyOrder[$1.difficulty ?? ""] ?? 3
                     return first < second
+                }
+            case .favourite:
+                result = result.filter { recipe in
+                    recipesCoreDataInstance.contains { $0.recipeId == recipe.id ?? 0 }
                 }
             }
         }

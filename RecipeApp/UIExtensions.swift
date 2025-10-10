@@ -26,7 +26,6 @@ extension Text {
             base = base.font(.system(size: fontSize))
         }
         
-        // Instead of assigning, wrap in a conditional view
         return Group {
             if let alignment = multilineTextAlignment {
                 base.multilineTextAlignment(alignment)

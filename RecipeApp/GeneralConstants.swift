@@ -12,6 +12,7 @@ enum SortingOptions: String, CaseIterable {
     case cookingTime = "Cooking Time"
     case rating = "Rating"
     case difficulty = "Difficulty"
+    case favourite = "Favourite"
 }
 enum FilterOptions: String,CaseIterable{
     case all = "All"
@@ -29,6 +30,9 @@ enum ImageIcons: String{
     case clockIcon = "clock"
     case starIcon = "star.fill"
     case arrowsIcon =  "arrow.up.arrow.down.circle.fill"
+    case cakeIcon = "birthday.cake.fill"
+    case bodyIcon = "figure.mind.and.body"
+    case flameIcon = "flame.fill"
 }
 enum GeneralConstants: String{
     case recipe = "Recipes"

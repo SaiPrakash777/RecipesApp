@@ -199,21 +199,21 @@ extension RecipeDetailsView{
         let nutritionDetials = calculateProteinAndCarbs(caloriesPerServing: Double(Int(recipeDetails.caloriesPerServing ?? 0)), servings: recipeDetails.servings ?? 0)
         HStack(spacing: 20) {
             HStack(spacing: 1) {
-                Image(systemName: "flame.fill")
+                Image(systemName: ImageIcons.flameIcon.rawValue)
                     .foregroundColor(.red)
                 Text("\(recipeDetails.caloriesPerServing ?? 0) cal")
                     .foregroundColor(.gray)
             }
 
             HStack(spacing: 1) {
-                Image(systemName: "figure.mind.and.body")
+                Image(systemName: ImageIcons.bodyIcon.rawValue)
                     .foregroundColor(.red)
                 Text("\(String(format: "%.1f", nutritionDetials.0)) protien")
                     .foregroundColor(.gray)
             }
 
             HStack(spacing: 1) {
-                Image(systemName: "birthday.cake.fill")
+                Image(systemName: ImageIcons.cakeIcon.rawValue)
                     .foregroundColor(.red)
                 Text("\(String(format: "%.1f", nutritionDetials.1))g carbs")
                     .foregroundColor(.gray)

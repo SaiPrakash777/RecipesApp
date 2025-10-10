@@ -10,7 +10,6 @@ import CoreData
 
 class DBManager{
     static let sharedInstance = DBManager()
-    
     lazy var context = persistentContainer.viewContext
     
     lazy var persistentContainer: NSPersistentContainer = {
@@ -34,6 +33,7 @@ class DBManager{
             }
         }
     }
+    
     func fetchRecipesData() -> [RecipesEntity]{
         var recipes = [RecipesEntity]()
         let fetchRuquest = NSFetchRequest<NSFetchRequestResult>(entityName: RecipesEntity.description())
@@ -44,6 +44,7 @@ class DBManager{
         }
         return recipes
     }
+    
     func createRecipeRecord(record: Recipes) {
         let context = DBManager.sharedInstance.context
         let recipes = RecipesEntity(context: context)
@@ -57,6 +58,7 @@ class DBManager{
         recipes.difficultyStatus = record.difficulty
         DBManager.sharedInstance.saveContext()
     }
+    
     func deleteRecipeRecord(recipeId: Int) {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: RecipesEntity.description())
         fetchRequest.predicate = NSPredicate(format: "recipeId == %d", recipeId)
@@ -72,5 +74,4 @@ class DBManager{
             print("Failed to delete recipe: \(error.localizedDescription)")
         }
     }
-
 }
