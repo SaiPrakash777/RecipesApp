@@ -102,6 +102,8 @@ extension RecipesView {
         
         if let option = selectedSortOption {
             switch option {
+            case .all:
+                break
             case .name:
                 result.sort { ($0.name ?? "") < ($1.name ?? "") }
             case .cookingTime:

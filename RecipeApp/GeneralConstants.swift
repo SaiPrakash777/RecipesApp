@@ -8,6 +8,7 @@
 import Foundation
 
 enum SortingOptions: String, CaseIterable {
+    case all = "All"
     case name = "Name"
     case cookingTime = "Cooking Time"
     case rating = "Rating"
